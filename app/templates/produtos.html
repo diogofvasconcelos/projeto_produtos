@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Produtos — Dashboard BI{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>Dashboard de Produtos</h1>
+    <p class="page-subtitle">Análise de desempenho de produtos por filial, categoria e fornecedor</p>
+</div>
+
+<!-- ===== ÁREA DE FILTROS ===== -->
+<div class="filters-section">
+    <form method="GET" action="/produtos" class="filter-form">
+
+        <div class="filter-group">
+            <label for="filial">Filial:</label>
+            <select name="filial" id="filial">
+                <option value="">Todas as Filiais</option>
+                {% for f in opcoes.filiais %}
+                <option value="{{ f }}" {% if filtros.filial == f %}selected{% endif %}>{{ f }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="categoria">Categoria:</label>
+            <select name="categoria" id="categoria">
+                <option value="">Todas as Categorias</option>
+                {% for c in opcoes.categorias %}
+                <option value="{{ c }}" {% if filtros.categoria == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="fornecedor">Fornecedor:</label>
+            <select name="fornecedor" id="fornecedor">
+                <option value="">Todos os Fornecedores</option>
+                {% for forn in opcoes.fornecedores %}
+                <option value="{{ forn }}" {% if filtros.fornecedor == forn %}selected{% endif %}>{{ forn }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="btn-primary">Aplicar Filtros</button>
+            <a href="/produtos" class="btn-clear">Limpar</a>
+        </div>
+
+    </form>
+</div>
+
+<!-- ===== ÁREA DE KPIs ===== -->
+<div class="kpis-grid">
+
+    <div class="kpi-card">
+        <span class="kpi-icon">📦</span>
+        <div class="kpi-info">
+            <span class="kpi-label">Total Unidades Vendidas</span>
+            <span class="kpi-value">{{ kpis.total_unidades }}</span>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <span class="kpi-icon">📈</span>
+        <div class="kpi-info">
+            <span class="kpi-label">Markup Médio</span>
+            <span class="kpi-value">{{ kpis.markup_medio }}%</span>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <span class="kpi-icon">🆕</span>
+        <div class="kpi-info">
+            <span class="kpi-label">Taxa de Lançamento</span>
+            <span class="kpi-value">{{ kpis.taxa_lancamento }}%</span>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <span class="kpi-icon">📊</span>
+        <div class="kpi-info">
+            <span class="kpi-label">Demanda Média por Produto</span>
+            <span class="kpi-value">{{ kpis.demanda_media }}</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== GRADE DE GRÁFICOS ===== -->
+<div class="charts-grid">
+
+    <div class="chart-card" id="unidades_mensal">
+        <h3>{{ charts.unidades_mensal.titulo }}</h3>
+        <div class="chart-placeholder">
+            <p>📊 Área reservada para o gráfico</p>
+            <small>Filtros ativos: {{ charts.unidades_mensal.filtros_ativos }}</small>
+        </div>
+    </div>
+
+    <div class="chart-card" id="markup_mensal">
+        <h3>{{ charts.markup_mensal.titulo }}</h3>
+        <div class="chart-placeholder">
+            <p>📊 Área reservada para o gráfico</p>
+            <small>Filtros ativos: {{ charts.markup_mensal.filtros_ativos }}</small>
+        </div>
+    </div>
+
+    <div class="chart-card" id="demanda_categoria">
+        <h3>{{ charts.demanda_categoria.titulo }}</h3>
+        <div class="chart-placeholder">
+            <p>📊 Área reservada para o gráfico</p>
+            <small>Filtros ativos: {{ charts.demanda_categoria.filtros_ativos }}</small>
+        </div>
+    </div>
+
+    <div class="chart-card" id="lancamento_descontinuacao">
+        <h3>{{ charts.lancamento_descontinuacao.titulo }}</h3>
+        <div class="chart-placeholder">
+            <p>📊 Área reservada para o gráfico</p>
+            <small>Filtros ativos: {{ charts.lancamento_descontinuacao.filtros_ativos }}</small>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
