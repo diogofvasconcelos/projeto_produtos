@@ -58,7 +58,7 @@
         <span class="kpi-icon">📦</span>
         <div class="kpi-info">
             <span class="kpi-label">Total Unidades Vendidas</span>
-            <span class="kpi-value">{{ kpis.total_unidades }}</span>
+            <span class="kpi-value">{{ "{:,}".format(kpis.total_unidades)|replace(",", ".") }}</span>
         </div>
     </div>
 
