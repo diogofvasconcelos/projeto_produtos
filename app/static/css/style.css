@@ -165,7 +165,7 @@ body {
 /* ===== Grade de KPIs ===== */
 .kpis-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 16px;
     margin-bottom: 24px;
 }
@@ -217,7 +217,7 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    min-height: 260px;
+    min-height: 320px;
     display: flex;
     flex-direction: column;
 }
@@ -228,32 +228,13 @@ body {
     color: #444;
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
+    margin-bottom: 10px;
 }
 
-.chart-placeholder {
+.chart-wrapper {
     flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #f9f9f9;
-    border: 2px dashed #d0d7de;
-    border-radius: 4px;
-    color: #888;
-    text-align: center;
-    padding: 20px;
-    gap: 8px;
-}
-
-.chart-placeholder p {
-    margin: 0;
-    font-size: 15px;
-}
-
-.chart-placeholder small {
-    font-size: 11px;
-    color: #aaa;
-    word-break: break-all;
+    position: relative;
+    min-height: 260px;
 }
 
 /* ===== Footer ===== */
@@ -269,7 +250,7 @@ body {
 /* ===== Responsividade ===== */
 @media (max-width: 900px) {
     .kpis-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .charts-grid {

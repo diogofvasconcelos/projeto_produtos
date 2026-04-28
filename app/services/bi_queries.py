@@ -66,7 +66,9 @@ def get_kpis(filters: dict) -> dict:
             SUM(unidades_vendidas)                               AS total_unidades,
             ROUND(AVG(markup_medio_pct)::NUMERIC, 1)             AS markup_medio,
             ROUND(AVG(taxa_lancamento_pct)::NUMERIC, 1)          AS taxa_lancamento_media,
-            ROUND(AVG(demanda_media_por_produto)::NUMERIC, 2)    AS demanda_media
+            ROUND(AVG(taxa_descontinuacao_pct)::NUMERIC, 1)      AS taxa_descontinuacao_media,
+            ROUND(AVG(demanda_media_por_produto)::NUMERIC, 2)    AS demanda_media,
+            ROUND(AVG(crescimento_unidades_pct)::NUMERIC, 1)     AS crescimento_unidades
         FROM produtos.vm_kpis_produtos_mensal
         {where};
     """
@@ -76,16 +78,19 @@ def get_kpis(filters: dict) -> dict:
         r = rows[0] if rows else {}
 
         return {
-            "total_unidades":    int(r.get("total_unidades") or 0),
-            "markup_medio":      float(r.get("markup_medio") or 0.0),
-            "taxa_lancamento":   float(r.get("taxa_lancamento_media") or 0.0),
-            "demanda_media":     float(r.get("demanda_media") or 0.0),
+            "total_unidades":        int(r.get("total_unidades") or 0),
+            "markup_medio":          float(r.get("markup_medio") or 0.0),
+            "taxa_lancamento":       float(r.get("taxa_lancamento_media") or 0.0),
+            "taxa_descontinuacao":   float(r.get("taxa_descontinuacao_media") or 0.0),
+            "demanda_media":         float(r.get("demanda_media") or 0.0),
+            "crescimento_unidades":  float(r.get("crescimento_unidades") or 0.0),
         }
 
     except Exception as e:
         return {
             "total_unidades": 0, "markup_medio": 0.0,
-            "taxa_lancamento": 0.0, "demanda_media": 0.0,
+            "taxa_lancamento": 0.0, "taxa_descontinuacao": 0.0,
+            "demanda_media": 0.0, "crescimento_unidades": 0.0,
             "_erro": str(e)
         }
 

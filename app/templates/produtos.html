@@ -18,7 +18,7 @@
             <select name="filial" id="filial">
                 <option value="">Todas as Filiais</option>
                 {% for f in opcoes.filiais %}
-                <option value="{{ f }}" {% if filtros.filial == f %}selected{% endif %}>{{ f }}</option>
+                <option value="{{ f }}" {% if filtros.filial==f %}selected{% endif %}>{{ f }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -28,7 +28,7 @@
             <select name="categoria" id="categoria">
                 <option value="">Todas as Categorias</option>
                 {% for c in opcoes.categorias %}
-                <option value="{{ c }}" {% if filtros.categoria == c %}selected{% endif %}>{{ c }}</option>
+                <option value="{{ c }}" {% if filtros.categoria==c %}selected{% endif %}>{{ c }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -38,7 +38,7 @@
             <select name="fornecedor" id="fornecedor">
                 <option value="">Todos os Fornecedores</option>
                 {% for forn in opcoes.fornecedores %}
-                <option value="{{ forn }}" {% if filtros.fornecedor == forn %}selected{% endif %}>{{ forn }}</option>
+                <option value="{{ forn }}" {% if filtros.fornecedor==forn %}selected{% endif %}>{{ forn }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -79,6 +79,14 @@
     </div>
 
     <div class="kpi-card">
+        <span class="kpi-icon">🚫</span>
+        <div class="kpi-info">
+            <span class="kpi-label">Taxa de Descontinuação</span>
+            <span class="kpi-value">{{ kpis.taxa_descontinuacao }}%</span>
+        </div>
+    </div>
+
+    <div class="kpi-card">
         <span class="kpi-icon">📊</span>
         <div class="kpi-info">
             <span class="kpi-label">Demanda Média por Produto</span>
@@ -91,38 +99,213 @@
 <!-- ===== GRADE DE GRÁFICOS ===== -->
 <div class="charts-grid">
 
-    <div class="chart-card" id="unidades_mensal">
+    <div class="chart-card" id="card_unidades_mensal">
         <h3>{{ charts.unidades_mensal.titulo }}</h3>
-        <div class="chart-placeholder">
-            <p>📊 Área reservada para o gráfico</p>
-            <small>Filtros ativos: {{ charts.unidades_mensal.filtros_ativos }}</small>
+        <div class="chart-wrapper">
+            <canvas id="chart_unidades_mensal"></canvas>
         </div>
     </div>
 
-    <div class="chart-card" id="markup_mensal">
+    <div class="chart-card" id="card_markup_mensal">
         <h3>{{ charts.markup_mensal.titulo }}</h3>
-        <div class="chart-placeholder">
-            <p>📊 Área reservada para o gráfico</p>
-            <small>Filtros ativos: {{ charts.markup_mensal.filtros_ativos }}</small>
+        <div class="chart-wrapper">
+            <canvas id="chart_markup_mensal"></canvas>
         </div>
     </div>
 
-    <div class="chart-card" id="demanda_categoria">
+    <div class="chart-card" id="card_demanda_categoria">
         <h3>{{ charts.demanda_categoria.titulo }}</h3>
-        <div class="chart-placeholder">
-            <p>📊 Área reservada para o gráfico</p>
-            <small>Filtros ativos: {{ charts.demanda_categoria.filtros_ativos }}</small>
+        <div class="chart-wrapper">
+            <canvas id="chart_demanda_categoria"></canvas>
         </div>
     </div>
 
-    <div class="chart-card" id="lancamento_descontinuacao">
+    <div class="chart-card" id="card_lancamento_descontinuacao">
         <h3>{{ charts.lancamento_descontinuacao.titulo }}</h3>
-        <div class="chart-placeholder">
-            <p>📊 Área reservada para o gráfico</p>
-            <small>Filtros ativos: {{ charts.lancamento_descontinuacao.filtros_ativos }}</small>
+        <div class="chart-wrapper">
+            <canvas id="chart_lancamento_descontinuacao"></canvas>
         </div>
     </div>
 
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        /* ======= Dados injetados pelo Jinja2 ======= */
+        const dadosUnidades = {{ charts.unidades_mensal.dados | tojson }};
+    const dadosMarkup = {{ charts.markup_mensal.dados | tojson }};
+    const dadosDemanda = {{ charts.demanda_categoria.dados | tojson }};
+    const dadosLancDesc = {{ charts.lancamento_descontinuacao.dados | tojson }};
+
+    /* ======= Helper: formatar label de mês ======= */
+    function fmtMes(iso) {
+        if (!iso) return '';
+        const partes = iso.split('-');
+        if (partes.length >= 2) return partes[1] + '/' + partes[0];
+        return iso;
+    }
+
+    /* ======= Paleta de cores ======= */
+    const azulPrimario = 'rgba(0, 86, 179, 1)';
+    const azulClaro = 'rgba(0, 86, 179, 0.15)';
+    const verdePrimario = 'rgba(16, 163, 127, 1)';
+    const verdeClaro = 'rgba(16, 163, 127, 0.15)';
+    const vermelho = 'rgba(220, 53, 69, 1)';
+    const vermelhoClaro = 'rgba(220, 53, 69, 0.15)';
+    const laranja = 'rgba(253, 126, 20, 1)';
+
+    /* ======= Gráfico 1 — Unidades Vendidas (Mensal) ======= */
+    new Chart(document.getElementById('chart_unidades_mensal'), {
+        type: 'line',
+        data: {
+            labels: dadosUnidades.map(d => fmtMes(d.mes)),
+            datasets: [{
+                label: 'Unidades Vendidas',
+                data: dadosUnidades.map(d => d.valor),
+                borderColor: azulPrimario,
+                backgroundColor: azulClaro,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: azulPrimario,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, position: 'top' },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Mês', font: { weight: 'bold' } } },
+                y: { title: { display: true, text: 'Unidades', font: { weight: 'bold' } }, beginAtZero: true }
+            }
+        }
+    });
+
+    /* ======= Gráfico 2 — Evolução do Markup Médio (%) ======= */
+    new Chart(document.getElementById('chart_markup_mensal'), {
+        type: 'line',
+        data: {
+            labels: dadosMarkup.map(d => fmtMes(d.mes)),
+            datasets: [{
+                label: 'Markup Médio (%)',
+                data: dadosMarkup.map(d => d.valor),
+                borderColor: verdePrimario,
+                backgroundColor: verdeClaro,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: verdePrimario,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, position: 'top' },
+                tooltip: {
+                    mode: 'index', intersect: false,
+                    callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%' }
+                }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Mês', font: { weight: 'bold' } } },
+                y: { title: { display: true, text: 'Markup (%)', font: { weight: 'bold' } } }
+            }
+        }
+    });
+
+    /* ======= Gráfico 3 — Demanda por Categoria ======= */
+    const coresCategoria = dadosDemanda.map((_, i) => {
+        const paleta = [
+            'rgba(0, 86, 179, 0.8)',
+            'rgba(16, 163, 127, 0.8)',
+            'rgba(253, 126, 20, 0.8)',
+            'rgba(142, 68, 173, 0.8)',
+            'rgba(220, 53, 69, 0.8)',
+            'rgba(52, 152, 219, 0.8)',
+            'rgba(241, 196, 15, 0.8)',
+            'rgba(46, 204, 113, 0.8)',
+            'rgba(231, 76, 60, 0.8)',
+            'rgba(155, 89, 182, 0.8)'
+        ];
+        return paleta[i % paleta.length];
+    });
+
+    new Chart(document.getElementById('chart_demanda_categoria'), {
+        type: 'bar',
+        data: {
+            labels: dadosDemanda.map(d => d.categoria),
+            datasets: [{
+                label: 'Unidades Vendidas',
+                data: dadosDemanda.map(d => d.valor),
+                backgroundColor: coresCategoria,
+                borderColor: coresCategoria.map(c => c.replace('0.8', '1')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Unidades Vendidas', font: { weight: 'bold' } }, beginAtZero: true },
+                y: { title: { display: true, text: 'Categoria', font: { weight: 'bold' } } }
+            }
+        }
+    });
+
+    /* ======= Gráfico 4 — Lançamentos vs. Descontinuações ======= */
+    new Chart(document.getElementById('chart_lancamento_descontinuacao'), {
+        type: 'bar',
+        data: {
+            labels: dadosLancDesc.map(d => fmtMes(d.mes)),
+            datasets: [
+                {
+                    label: 'Lançamentos (%)',
+                    data: dadosLancDesc.map(d => d.lancamentos),
+                    backgroundColor: 'rgba(16, 163, 127, 0.75)',
+                    borderColor: verdePrimario,
+                    borderWidth: 1
+                },
+                {
+                    label: 'Descontinuações (%)',
+                    data: dadosLancDesc.map(d => d.descontinuacoes),
+                    backgroundColor: 'rgba(220, 53, 69, 0.75)',
+                    borderColor: vermelho,
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, position: 'top' },
+                tooltip: {
+                    mode: 'index', intersect: false,
+                    callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%' }
+                }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Mês', font: { weight: 'bold' } } },
+                y: { title: { display: true, text: 'Taxa (%)', font: { weight: 'bold' } }, beginAtZero: true }
+            }
+        }
+    });
+
+});
+</script>
 {% endblock %}
